@@ -88,3 +88,20 @@ def select_image():
         entry_image.delete(0, tk.END)
         entry_image.insert(0, file_path)
 
+ef encode():
+    image_path = entry_image.get()
+    message = entry_message.get()
+    if not image_path or not message:
+        messagebox.showerror("Error", "Please select an image and enter a message.")
+        return
+
+    output_path = filedialog.asksaveasfilename(defaultextension=".png",
+                                               filetypes=[("PNG files", "*.png")])
+    if not output_path:
+        return
+
+    try:
+        process_image(image_path, message, output_path)
+        messagebox.showinfo("Success", f"Image saved to {output_path}")
+    except Exception as e:
+        messagebox.showerror("Error", f"An error occurred: {str(e)}")
