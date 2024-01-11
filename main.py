@@ -1,8 +1,8 @@
 import tkinter as tk
-from tkinter import filedialog
-from tkinter import messagebox
+from tkinter import filedialog, messagebox
+from tkinter.ttk import Progressbar
 from PIL import Image
-import os
+import threading
 
 ### Below is the lsb encoding/decoding functionality
 
@@ -119,6 +119,7 @@ class SteganographyApp:
         threading.Thread(target=self.calculate_space, args=(path,)).start()
 
     def calculate_space(self, path):
+        #TODO
         # Dummy function to simulate space calculation
         self.image = Image.open(path)
         # Update progress bar and available space label
