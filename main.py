@@ -82,46 +82,79 @@ process_image(input_image, secret_message, output_image)
 
 ### Above is the encode/decode functionality, below is tkinter implementation
 
-def select_image():
-    file_path = filedialog.askopenfilename()
-    if file_path:
-        entry_image.delete(0, tk.END)
-        entry_image.insert(0, file_path)
+class SteganographyApp:
+    def __init__(self, root):
+        self.root = root
+        root.title("LSB Steganography")
 
-def encode():
-    image_path = entry_image.get()
-    message = entry_message.get()
-    if not image_path or not message:
-        messagebox.showerror("Error", "Please select an image and enter a message.")
-        return
+        tk.Label(root, text="Select Image:").grid(row=0, column=0)
+        self.entry_image = tk.Entry(root, width=40)
+        self.entry_image.grid(row=0, column=1)
+        tk.Button(root, text="Browse", command=self.select_image).grid(row=0, column=2)
 
-    output_path = filedialog.asksaveasfilename(defaultextension=".png",
-                                               filetypes=[("PNG files", "*.png")])
-    if not output_path:
-        return
+        self.progress = Progressbar(root, orient=tk.HORIZONTAL, length=100, mode='determinate')
+        self.progress.grid(row=1, columnspan=3, pady=10)
 
-    try:
-        process_image(image_path, message, output_path)
+        tk.Label(root, text="Available Space:").grid(row=2, column=0)
+        self.label_space = tk.Label(root, text="0 characters")
+        self.label_space.grid(row=2, column=1)
+
+        tk.Label(root, text="Enter Message:").grid(row=3, column=0)
+        self.entry_message = tk.Entry(root, width=40)
+        self.entry_message.grid(row=3, column=1)
+
+        tk.Button(root, text="Encode and Save", command=self.encode).grid(row=4, column=1)
+
+        self.image = None
+
+    def select_image(self):
+        file_path = filedialog.askopenfilename()
+        if file_path:
+            self.entry_image.delete(0, tk.END)
+            self.entry_image.insert(0, file_path)
+            self.load_image(file_path)
+
+    def load_image(self, path):
+        # Load the image in a separate thread to keep the UI responsive
+        threading.Thread(target=self.calculate_space, args=(path,)).start()
+
+    def calculate_space(self, path):
+        # Dummy function to simulate space calculation
+        self.image = Image.open(path)
+        # Update progress bar and available space label
+        self.progress['value'] = 50  # Update this based on actual progress
+        self.label_space.config(text=f"{self.get_available_space()} characters")
+
+    def get_available_space(self):
+        # Calculate and return the available space for message encoding
+        return 1000  # Placeholder value
+
+    def encode(self):
+        message = self.entry_message.get()
+        if not message:
+            messagebox.showerror("Error", "Please enter a message to encode.")
+            return
+        output_path = filedialog.asksaveasfilename(defaultextension=".png",
+                                                   filetypes=[("PNG files", "*.png")])
+        if not output_path:
+            return
+
+        # Encode the message in a separate thread
+        threading.Thread(target=self.encode_message, args=(message, output_path)).start()
+
+    def encode_message(self, message, output_path):
+        # Update progress bar during encoding
+        self.progress['value'] = 0
+        # Dummy encoding process
+        for i in range(100):
+            self.progress['value'] += 1
+            time.sleep(0.1)  # Simulate encoding time
+
+        # Save the encoded image
+        self.image.save(output_path, "PNG")
         messagebox.showinfo("Success", f"Image saved to {output_path}")
-    except Exception as e:
-        messagebox.showerror("Error", f"An error occurred: {str(e)}")
 
-### instantiate the app
-
-app = tk.Tk()
-app.title("LSB Steganography")
-
-tk.Label(app, text="Select Image:").grid(row=0, column=0, padx=10, pady=10)
-entry_image = tk.Entry(app, width=40)
-entry_image.grid(row=0, column=1, padx=10, pady=10)
-button_browse = tk.Button(app, text="Browse", command=select_image)
-button_browse.grid(row=0, column=2, padx=10, pady=10)
-
-tk.Label(app, text="Enter Message:").grid(row=1, column=0, padx=10, pady=10)
-entry_message = tk.Entry(app, width=40)
-entry_message.grid(row=1, column=1, padx=10, pady=10)
-
-button_encode = tk.Button(app, text="Encode and Save", command=encode)
-button_encode.grid(row=2, column=1, padx=10, pady=10)
-
-app.mainloop()
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = SteganographyApp(root)
+    root.mainloop()
