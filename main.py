@@ -105,3 +105,23 @@ def encode():
         messagebox.showinfo("Success", f"Image saved to {output_path}")
     except Exception as e:
         messagebox.showerror("Error", f"An error occurred: {str(e)}")
+
+### instantiate the app
+
+app = tk.Tk()
+app.title("LSB Steganography")
+
+tk.Label(app, text="Select Image:").grid(row=0, column=0, padx=10, pady=10)
+entry_image = tk.Entry(app, width=40)
+entry_image.grid(row=0, column=1, padx=10, pady=10)
+button_browse = tk.Button(app, text="Browse", command=select_image)
+button_browse.grid(row=0, column=2, padx=10, pady=10)
+
+tk.Label(app, text="Enter Message:").grid(row=1, column=0, padx=10, pady=10)
+entry_message = tk.Entry(app, width=40)
+entry_message.grid(row=1, column=1, padx=10, pady=10)
+
+button_encode = tk.Button(app, text="Encode and Save", command=encode)
+button_encode.grid(row=2, column=1, padx=10, pady=10)
+
+app.mainloop()
