@@ -88,7 +88,7 @@ def select_image():
         entry_image.delete(0, tk.END)
         entry_image.insert(0, file_path)
 
-ef encode():
+def encode():
     image_path = entry_image.get()
     message = entry_message.get()
     if not image_path or not message:
