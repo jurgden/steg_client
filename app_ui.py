@@ -9,6 +9,9 @@ class SteganographyApp:
         master.title("LSB Steganography Application")
         self.label_space = tk.Label(master, text="Available Space: 0 characters")
         self.label_space.grid(row=2, column=1)
+        self.stealth_slider = tk.Scale(master, from_=1, to=3, orient=tk.HORIZONTAL, label="Stealth Level")
+        self.stealth_slider.grid(row=3, column=1)
+
 
 
         # Set up the layout here
@@ -31,11 +34,11 @@ class SteganographyApp:
 
     def calculate_space(self):
         """Calculate the available space for encoding in the LSB."""
-        width, height = self.image.size
-        num_pixels = width * height
-        capacity_in_bits = num_pixels * 3  # 3 bits per pixel
-        capacity_in_chars = capacity_in_bits // 8  # Convert to characters (8 bits per character)
+        pixels = self.image.getdata()
+        num_lsb = sum(sum(self.get_lsb(pixel)) for pixel in pixels)  # Sum the LSBs for each pixel
+        capacity_in_chars = num_lsb // 8  # Convert to characters
         self.label_space.config(text=f"Available Space: {capacity_in_chars} characters")
+
 
 
 
