@@ -1,4 +1,8 @@
+import tkinter as tk
+from tkinter import filedialog
+from tkinter import messagebox
 from PIL import Image
+import os
 
 def to_bin(data):
     """Convert data to binary."""
