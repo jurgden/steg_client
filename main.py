@@ -4,6 +4,8 @@ from tkinter import messagebox
 from PIL import Image
 import os
 
+### Below is the lsb encoding/decoding functionality
+
 def to_bin(data):
     """Convert data to binary."""
     if isinstance(data, str):
@@ -77,3 +79,12 @@ input_image = "input.jpg"  # Path to the input image
 output_image = "output.png"  # Path to save the output image
 secret_message = "Your secret message here"
 process_image(input_image, secret_message, output_image)
+
+### Above is the encode/decode functionality, below is tkinter implementation
+
+def select_image():
+    file_path = filedialog.askopenfilename()
+    if file_path:
+        entry_image.delete(0, tk.END)
+        entry_image.insert(0, file_path)
+
