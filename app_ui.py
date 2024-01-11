@@ -19,6 +19,10 @@ class SteganographyApp:
 
         # Placeholder for additional UI elements
         # ...
+    
+    def get_lsb(self, pixel):
+        """Get the LSB of each color channel in the pixel."""
+        return (pixel[0] & 1, pixel[1] & 1, pixel[2] & 1)
 
     def load_image(self, path):
         """Load the image and calculate available space."""
@@ -26,10 +30,13 @@ class SteganographyApp:
         self.calculate_space()
 
     def calculate_space(self):
-        """Calculate and update the UI with available space for encoding."""
+        """Calculate the available space for encoding in the LSB."""
         width, height = self.image.size
-        available_space = (width * height * 3) // 8
-        self.label_space.config(text=f"Available Space: {available_space} characters")
+        num_pixels = width * height
+        capacity_in_bits = num_pixels * 3  # 3 bits per pixel
+        capacity_in_chars = capacity_in_bits // 8  # Convert to characters (8 bits per character)
+        self.label_space.config(text=f"Available Space: {capacity_in_chars} characters")
+
 
 
 
