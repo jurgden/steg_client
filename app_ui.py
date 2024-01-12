@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from PIL import Image
+from steg_encoder import encode_image
 
 
 class SteganographyApp:
@@ -11,6 +12,10 @@ class SteganographyApp:
         self.label_space.grid(row=2, column=1)
         self.stealth_slider = tk.Scale(master, from_=1, to=3, orient=tk.HORIZONTAL, label="Stealth Level")
         self.stealth_slider.grid(row=3, column=1)
+        tk.Label(master, text="Enter Message:").grid(row=4, column=0)
+        self.message_entry = tk.Text(master, height=4, width=40)
+        self.message_entry.grid(row=4, column=1)
+        
 
 
 
@@ -19,6 +24,8 @@ class SteganographyApp:
         self.entry_image = tk.Entry(master, width=40)
         self.entry_image.grid(row=0, column=1)
         tk.Button(master, text="Browse", command=self.select_image).grid(row=0, column=2)
+        tk.Button(master, text="Encode Message", command=self.encode_message).grid(row=5, column=1)
+
 
         # Placeholder for additional UI elements
         # ...
@@ -27,29 +34,64 @@ class SteganographyApp:
         """Get the LSB of each color channel in the pixel."""
         return (pixel[0] & 1, pixel[1] & 1, pixel[2] & 1)
 
-    def load_image(self, path):
-        """Load the image and calculate available space."""
-        self.image = Image.open(path)
-        self.calculate_space()
-
-    def calculate_space(self):
-        """Calculate the available space for encoding in the LSB."""
-        pixels = self.image.getdata()
-        num_lsb = sum(sum(self.get_lsb(pixel)) for pixel in pixels)  # Sum the LSBs for each pixel
-        capacity_in_chars = num_lsb // 8  # Convert to characters
-        self.label_space.config(text=f"Available Space: {capacity_in_chars} characters")
-
-
-
-
-
+    
     def select_image(self):
-        # This function will handle the image selection
         file_path = filedialog.askopenfilename()
         if file_path:
             self.entry_image.delete(0, tk.END)
             self.entry_image.insert(0, file_path)
             self.load_image(file_path)
+
+
+    def load_image(self, path):
+        try:
+            self.image = Image.open(path)
+            self.calculate_space()
+        except IOError:
+            messagebox.showerror("Error", "Failed to load image.")
+            self.label_space.config(text="Available Space: 0 characters")
+
+    def calculate_space(self):
+        if hasattr(self, 'image'):
+            width, height = self.image.size
+            stealth_level = self.stealth_slider.get()
+            bits_per_pixel = stealth_level  # Assuming 1 to 3 bits per pixel
+            capacity_in_chars = (width * height * bits_per_pixel) // 8
+            self.label_space.config(text=f"Available Space: {capacity_in_chars} characters")
+        else:
+            self.label_space.config(text="Available Space: 0 characters")
+
+
+    def encode_message(self):
+        if not hasattr(self, 'image'):
+            messagebox.showerror("Error", "No image loaded.")
+            return
+
+        message = self.message_entry.get("1.0", tk.END).strip()
+        if not message:
+            messagebox.showwarning("Warning", "Please enter a message to encode.")
+            return
+
+        stealth_level = self.stealth_slider.get()
+        encoded_image = encode_image(self.image, message, stealth_level)
+
+        # Check if the message length exceeds the capacity
+        width, height = self.image.size
+        max_capacity = (width * height * stealth_level) // 8
+        if len(message) > max_capacity:
+            messagebox.showerror("Error", "Message is too long for the selected stealth level.")
+            return
+
+        save_path = filedialog.asksaveasfilename(defaultextension=".png", filetypes=[("PNG files", "*.png")])
+        if save_path:
+            try:
+                encoded_image.save(save_path, "PNG")
+                messagebox.showinfo("Success", f"Message encoded. Image saved to {save_path}")
+            except IOError:
+                messagebox.showerror("Error", "Failed to save the image.")
+
+
+
 
         # Additional methods for other functionalities will go here
         # ...
